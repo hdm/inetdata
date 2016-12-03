@@ -8,8 +8,11 @@
   "DISABLED_max_ram": "16G",
   "DISABLED_max_cores" : "4",
 
-
   "sonar_base_url": "https://scans.io",
+
+  "censys_base_url": "https://www.censys.io/api/v1",
+  "censys_api_id": "",
+  "censys_secret": "",
 
   "czds_base_url": "https://czds.icann.org",
   "czds_token": "",
