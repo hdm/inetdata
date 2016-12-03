@@ -9,10 +9,8 @@ module InetData
         ims    = false
         http   = Net::HTTP.new(target.host, target.port)
 
-        # Invalid SSL certificate as of 12/1/2016
         if src.index("https") == 0
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
         end
 
         req = Net::HTTP::Get.new(target.request_uri)
@@ -64,7 +62,6 @@ module InetData
           tries += 1
           http   = Net::HTTP.new(target.host, target.port)
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
           req = Net::HTTP::Get.new(target.request_uri)
           res = http.request(req)
