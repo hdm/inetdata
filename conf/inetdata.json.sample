@@ -1,0 +1,110 @@
+{
+  "storage": "./data/cache/",
+  "reports": "./data/reports/",
+  "logs": "./data/logs/",
+  "log_stderr": true,
+  "log_debug": false,
+
+  "DISABLED_max_ram": "16G",
+  "DISABLED_max_cores" : "4",
+
+
+  "sonar_base_url": "https://scans.io",
+
+  "czds_base_url": "https://czds.icann.org",
+  "czds_token": "",
+
+  "premiumdrops_username": "",
+  "premiumdrops_password": "",
+  "premiumdrops_urls" : [
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=biz",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=com",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=info",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=mobi",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=net",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=org",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=sk",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=us",
+    "http://www.premiumdrops.com/list.php?a=request_full_zone&f=xxx",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=biz",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=com",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=info",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=mobi",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=net",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=org",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=sk",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=us",
+    "http://www.premiumdrops.com/list.php?a=request_zone&f=xxx",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=biz&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=biz&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=com&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=com&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=info&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=info&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=mobi&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=mobi&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=net&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=net&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=org&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=org&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=sk&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=sk&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=us&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=us&t=new",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=xxx&t=diff",
+    "http://www.premiumdrops.com/list.php?a=request_zone_changes&f=xxx&t=new"
+  ],
+
+  "whoisxmlapi_base_url": "https://bestwhois.org",
+  "whoisxmlapi_username": "",
+  "whoisxmlapi_password": "",
+  "whoisxmlapi_datasets": {
+           "whois1": "/domain_name_data/domain_names_whois/",
+           "whois2": "/domain_name_data/domain_names_whois2/",
+      "gtld_whois1": "/ngtlds_domain_name_data/domain_names_whois/"
+  },
+
+  "wwwsio_username": "",
+  "wwwsio_password": "",
+  "wwwsio_base_url": "https://wwws.io/api",
+
+  "caida_prefix2as_ipv4_base_url": "http://data.caida.org/datasets/routing/routeviews-prefix2as",
+  "caida_prefix2as_ipv6_base_url": "http://data.caida.org/datasets/routing/routeviews6-prefix2as",
+
+  "gov_domains_url": "https://raw.githubusercontent.com/GSA/data/gh-pages/dotgov-domains/current-full.csv",
+
+  "govuk_domains_base_url": "https://www.gov.uk/government/publications/list-of-gov-uk-domain-names",
+
+  "rir_delegation_urls" : [
+    "http://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest",
+    "http://ftp.ripe.net/ripe/stats/delegated-ripencc-latest",
+    "http://ftp.ripe.net/ripe/stats/delegated-ripencc-extended-latest",
+    "http://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-latest",
+    "http://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-extended-latest",
+    "http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-latest",
+    "http://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest",
+    "http://ftp.apnic.net/stats/apnic/legacy-apnic-latest",
+    "http://ftp.apnic.net/stats/apnic/assigned-apnic-latest",
+    "http://ftp.apnic.net/stats/apnic/delegated-apnic-latest",
+    "http://ftp.apnic.net/stats/apnic/delegated-apnic-extended-latest",
+    "http://ftp.apnic.net/stats/apnic/delegated-apnic-ipv6-assigned-latest",
+    "http://ftp.arin.net/pub/originAS/originAS_arin-latest.txt",
+    "http://ftp.arin.net/info/asn.txt"
+  ],
+
+  "rir_database_unused" : [
+    "http://ftp.arin.net/pub/rr/ARIN.CURRENTSERIAL",
+    "http://ftp.arin.net/pub/rr/arin.db",
+    "http://ftp.ripe.net/ripe/dbase/RIPE.CURRENTSERIAL",
+    "http://ftp.ripe.net/ripe/dbase/ripe.db.gz",
+    "http://ftp.apnic.net/apnic/dbase/data/JPNIC.CURRENTSERIAL",
+    "http://ftp.apnic.net/apnic/dbase/data/KRNIC.CURRENTSERIAL",
+    "http://ftp.apnic.net/apnic/dbase/data/TWNIC.CURRENTSERIAL",
+    "http://ftp.apnic.net/apnic/dbase/data/jpnic.db.gz",
+    "http://ftp.apnic.net/apnic/dbase/data/krnic.db.gz",
+    "http://ftp.apnic.net/apnic/dbase/data/twnic.in.gz",
+    "http://ftp.apnic.net/apnic/dbase/data/twnic.pn.gz",
+    "http://ftp.afrinic.net/dbase/AFRINIC.CURRENTSERIAL",
+    "http://ftp.afrinic.net/dbase/afrinic.db.gz"
+  ]
+}
