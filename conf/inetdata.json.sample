@@ -17,6 +17,8 @@
   "czds_base_url": "https://czds.icann.org",
   "czds_token": "",
 
+  "arin_api_key": "",
+
   "premiumdrops_username": "",
   "premiumdrops_password": "",
   "premiumdrops_urls" : [
