@@ -63,16 +63,17 @@ module InetData
       end
 
       def download
-        url = 'https://www.arin.net/public/secure/downloads/bulkwhois?apikey=' + config['arin_api_key']
-
         date = Time.now.strftime("%Y%m%d")
         dir  = File.expand_path(File.join(storage_path, date))
-        dst  = File.join(dir, "arin_db.zip")
-
         FileUtils.mkdir_p(dir)
 
-        log("Dowloading #{dst}")
-        download_file(url, dst)
+	%W{ nets asns orgs pocs }.each do |ftype|
+          name = "#{ftype}.xml"
+          url  = "https://www.arin.net/public/secure/downloads/bulkwhois/#{name}?apikey=" + config['arin_api_key']
+          dst  = File.join(dir, name)
+          log("Dowloading #{dst}")
+          download_file(url, dst)
+        end
       end
 
       #
