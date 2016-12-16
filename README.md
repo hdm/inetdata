@@ -18,7 +18,7 @@ Download internet data from various sources
   * conf/networks.txt
 
 ## Usage
-  * bin/
+  * bin/daily.sh
 
 ## Output
   * data/reports/
