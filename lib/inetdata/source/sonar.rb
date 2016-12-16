@@ -123,13 +123,92 @@ module InetData
             end
           end
 
-
         end
 
         queue.each do |url|
           dst = File.join(dir, url.split("/").last)
           download_file(url, dst)
         end
+      end
+
+      def normalize
+        data = storage_path
+        norm = File.join(data, "normalized")
+        FileUtils.mkdir_p(norm)
+
+        unless inetdata_parsers_available?
+          log("The inetdata-parsers tools are not in the execution path, aborting normalization")
+          return false
+        end
+
+        fdns_file = latest_fdns_data
+        fdns_mtbl = File.join(norm, File.basename(fdns_file).sub(".gz", "-names-inverse.mtbl"))
+
+        rdns_file = latest_fdns_data
+        rdns_mtbl = File.join(norm, File.basename(rdns_file).sub(".gz", "-names-inverse.mtbl"))
+
+        if File.exists?(fdns_mtbl)
+          log("Normalized data is already present for FDNS #{data} at #{fdns_mtbl}")
+        else
+          output_base = File.join(norm, File.basename(fdns_file).sub(".gz", ""))
+
+          csv_cmd = "nice #{gzip_command} -dc #{fdns_file} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{output_base}"
+          log("Running #{csv_cmd}")
+          system(csv_cmd)
+          [
+            "#{output_base}-names.gz",
+            "#{output_base}-names-inverse.gz"
+          ].each do |f|
+            o = f.sub(".gz", ".mtbl")
+            mtbl_cmd = "nice #{gzip_command} -dc #{f} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            log("Running #{mtbl_cmd}")
+            system(mtbl_cmd)
+          end
+        end
+
+        if File.exists?(rdns_mtbl)
+          log("Normalized data is already present for RDNS #{data} at #{rdns_mtbl}")
+        else
+          output_base = File.join(norm, File.basename(rdns_file).sub(".gz", ""))
+
+          csv_cmd = "nice #{gzip_command} -dc #{rdns_file} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{output_base}"
+          log("Running #{csv_cmd}")
+          system(cmd)
+          [
+            "#{output_base}-names.gz",
+            "#{output_base}-names-inverse.gz"
+          ].each do |f|
+            o = f.sub(".gz", ".mtbl")
+            mtbl_cmd = "nice #{gzip_command} -dc #{f} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            log("Running #{mtbl_cmd}")
+            system(mtbl_cmd)
+          end
+        end
+
+      end
+
+      #
+      # Find the most recent dataset
+      #
+      def latest_data(dtype)
+        path = Dir["#{storage_path}/*#{dtype}.gz"].sort { |a,b|
+          File.basename(b).split(/[^\d]+/).first.to_i <=>
+          File.basename(a).split(/[^\d]+/).first.to_i
+        }.first
+
+        if not path
+          raise RuntimeError, "No #{dtype} dataset available for #{self.name}"
+        end
+
+        path
+      end
+
+      def latest_fdns_data
+        latest_data("_dnsrecords_all")
+      end
+
+      def latest_rdns_data
+        latest_data("-rdns")
       end
 
     end

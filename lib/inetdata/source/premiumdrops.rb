@@ -141,9 +141,8 @@ module InetData
         end
       end
 
-
       #
-      # Normalize the latest CZDS zones
+      # Normalize the latest premium drops zones
       #
       def normalize
         data = latest_data
@@ -152,25 +151,13 @@ module InetData
 
         if File.exists?(File.join(norm, "_normalized_"))
           log("Normalized data is already present for #{data}")
-          return
+          return true
         end
 
-        out_domains = File.join(norm, "domains.txt")
-        out_domains_tmp = out_domains + ".tmp"
-
-        out_ipv4 = File.join(norm, "ipv4.txt")
-        out_ipv4_tmp = out_ipv4 + ".tmp"
-
-        out_ipv6 = File.join(norm, "ipv6.txt")
-        out_ipv6_tmp = out_ipv6 + ".tmp"
-
-        out_hosts = File.join(norm, "hosts.txt")
-        out_hosts_tmp = out_hosts + ".tmp"
-
-        out_domains_fd = File.open(out_domains_tmp, "wb")
-        out_ipv4_fd = File.open(out_ipv4_tmp, "wb")
-        out_ipv6_fd = File.open(out_ipv6_tmp, "wb")
-        out_hosts_fd = File.open(out_hosts_tmp, "wb")
+        unless inetdata_parsers_available?
+          log("The inetdata-parsers tools are not in the execution path, aborting normalization")
+          return false
+        end
 
         zone_index = 0
         zone_files = Dir["#{data}/*_full.gz"]
@@ -180,163 +167,24 @@ module InetData
           log("Extracting records from [#{zone_index}/#{zone_files.length}] #{zone_file}...")
           origin = zone_file.split('/').last.split("_").first
 
-          case origin
-          when "sk"
-            File.open(zone_file, "rb") do |input|
-              # 1000hier.sk;IPEK-0001;HELE-0056;NEW;DOM_OK;ns.webglobe.sk;ns2.webglobe.sk;ns3.webglobe.sk;;;19.12.2011
-              input.each_line do |line|
-                bits = line.downcase.strip.split(/;/)
-                next unless bits[0] =~ /\.sk$/
-                nameservers = bits[5,4].select{|x| x.to_s.length > 0}
-                out_domains_fd.puts bits[0]
-                nameservers.each do |ns|
-                  out_hosts_fd.puts ns
-                  expand_domains(ns).each do |dom|
-                    out_domains_fd.puts dom
-                  end
-                end
-              end
-            end
-          when "biz", "xxx"
-            decompress_gzfile(zone_file) do |pipe|
-              pipe.each_line do |line|
-                # 01O.BIZ.                7200    IN      NS      NS1.DSREDIRECTS.COM.
-                bits = line.downcase.strip.split(/\s+/)
-                next unless bits[4]
+          csv_cmd = "nice " +
+            ((origin == "sk") ? "cat" : "#{gzip_command} -dc") + " #{zone_file} | " +
+            "nice inetdata-zone2csv | " +
+            "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{norm}/#{origin}"
 
-                bits[0] = bits[0].sub(/\.$/, '')
-                bits[4] = bits[4].sub(/\.$/, '')
+          log("Running #{csv_cmd}\n")
+          system(csv_cmd)
 
-                case bits[3]
-                  when 'ns'
-                    out_domains_fd.puts bits[0]
-                    out_hosts_fd.puts bits[4]
-                    expand_domains(bits[4]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'a'
-                    out_ipv4_fd.puts [ bits[4], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'aaaa'
-                    out_ipv6_fd.puts [ bits[4], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-                end
-              end
-            end
-          when "us"
-            decompress_gzfile(zone_file) do |pipe|
-              pipe.each_line do |line|
-                # NS4.007POKER IN A 136.243.106.135
-                # no trailing dot means append origin
-                bits = line.downcase.strip.split(/\s+/)
-                next unless bits[1] == "in"
-
-                if bits[0][-1, 1] != "."
-                  bits[0] << ".us"
-                end
-
-                bits[0] = bits[0].sub(/\.$/, '')
-                bits[3] = bits[3].sub(/\.$/, '')
-
-                case bits[2]
-                  when 'ns'
-                    out_domains_fd.puts bits[0]
-                    out_hosts_fd.puts bits[3]
-                    expand_domains(bits[3]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'a'
-                    out_ipv4_fd.puts [ bits[3], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'aaaa'
-                    out_ipv6_fd.puts [ bits[3], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-                end
-              end
-            end
-          # The rest of the zones are fairly standard: com, info, mobi, net, org
-          # No trailing dot means append origin to the label
-          else
-            decompress_gzfile(zone_file) do |pipe|
-              pipe.each_line do |line|
-
-                bits = line.downcase.strip.split(/\s+/)
-                next unless bits.length == 3
-                next unless %w{ns a aaaa}.include?(bits[1])
-
-                if bits[0][-1, 1] != "."
-                  bits[0] << ".#{origin}"
-                end
-
-                if bits[2][-1, 1] != "."
-                  bits[2] << ".#{origin}"
-                end
-
-                bits[0] = bits[0].sub(/\.$/, '')
-                bits[2] = bits[2].sub(/\.$/, '')
-
-                case bits[1]
-                  when 'ns'
-                    out_domains_fd.puts bits[0]
-                    out_hosts_fd.puts bits[2]
-                    expand_domains(bits[2]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'a'
-                    out_ipv4_fd.puts [ bits[2], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-
-                  when 'aaaa'
-                    out_ipv6_fd.puts [ bits[2], bits[0] ].join("\t")
-                    out_hosts_fd.puts bits[0]
-                    expand_domains(bits[0]).each do |dom|
-                      out_domains_fd.puts dom
-                    end
-                  end
-              end
-            end
+          [
+            "#{norm}/#{origin}-names.gz",
+            "#{norm}/#{origin}-names-inverse.gz"
+          ].each do |f|
+            o = f.sub(".gz", ".mtbl")
+            mtbl_cmd = "nice #{gzip_command} -dc #{f} | nice inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            log("Running #{mtbl_cmd}")
+            system(mtbl_cmd)
           end
         end
-
-        out_domains_fd.close
-        out_ipv4_fd.close
-        out_ipv6_fd.close
-        out_hosts_fd.close
-
-        log("Sorting extracted records from #{data}...")
-
-        uniq_sort_file(out_domains_tmp)
-        File.rename(out_domains_tmp, out_domains)
-
-        uniq_sort_file(out_ipv4_tmp)
-        File.rename(out_ipv4_tmp, out_ipv4)
-
-        uniq_sort_file(out_ipv6_tmp)
-        File.rename(out_ipv6_tmp, out_ipv6)
-
-        uniq_sort_file(out_hosts_tmp)
-        File.rename(out_hosts_tmp, out_hosts)
-
         File.open(File.join(norm, "_normalized_"), "wb") {|fd|}
       end
 

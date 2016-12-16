@@ -129,82 +129,30 @@ module InetData
 
         if File.exists?(File.join(norm, "_normalized_"))
           log("Normalized data is already present for #{data}")
-          return
+          return true
         end
 
-        out_domains = File.join(norm, "domains.txt")
-        out_domains_tmp = out_domains + ".tmp"
-
-        out_ipv4 = File.join(norm, "ipv4.txt")
-        out_ipv4_tmp = out_ipv4 + ".tmp"
-
-        out_ipv6 = File.join(norm, "ipv6.txt")
-        out_ipv6_tmp = out_ipv6 + ".tmp"
-
-        out_hosts = File.join(norm, "hosts.txt")
-        out_hosts_tmp = out_hosts + ".tmp"
-
-        out_domains_fd = File.open(out_domains_tmp, "wb")
-        out_ipv4_fd = File.open(out_ipv4_tmp, "wb")
-        out_ipv6_fd = File.open(out_ipv6_tmp, "wb")
-        out_hosts_fd = File.open(out_hosts_tmp, "wb")
-
-        zone_index = 0
-        zone_files = Dir["#{data}/*.gz"]
-        zone_files.each do |zone_file|
-          zone_index += 1
-          log("Extracting records from [#{zone_index}/#{zone_files.length}] #{zone_file}...")
-          decompress_gzfile(zone_file) do |pipe|
-            pipe.each_line do |line|
-              bits = line.downcase.strip.split(/\s+/)
-              next if (bits[3] == 'nsec3' || bits[3] == 'rrsig')
-              bits[0] = bits[0].to_s.sub(/\.$/, '')
-              bits[4] = bits[4].to_s.sub(/\.$/, '')
-
-              case bits[3]
-                when 'ns'
-                  out_domains_fd.puts bits[0]
-                  out_hosts_fd.puts bits[4]
-                  expand_domains(bits[4]).each do |dom|
-                    out_domains_fd.puts dom
-                  end
-
-                when 'a'
-                  out_ipv4_fd.puts [ bits[4], bits[0] ].join("\t")
-                  out_hosts_fd.puts bits[0]
-                  expand_domains(bits[0]).each do |dom|
-                    out_domains_fd.puts dom
-                  end
-
-                when 'aaaa'
-                  out_ipv6_fd.puts [ bits[4], bits[0] ].join("\t")
-                  out_hosts_fd.puts bits[0]
-                  expand_domains(bits[0]).each do |dom|
-                    out_domains_fd.puts dom
-                  end
-              end
-            end
-          end
+        unless inetdata_parsers_available?
+          log("The inetdata-parsers tools are not in the execution path, aborting normalization")
+          return false
         end
 
-        out_domains_fd.close
-        out_ipv4_fd.close
-        out_ipv6_fd.close
-        out_hosts_fd.close
+        csv_cmd = "nice #{gzip_command} -dc #{data}/*.gz | " +
+          "nice inetdata-zone2csv | " +
+          "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{norm}/czds"
 
-        log("Sorting extracted records from #{data}...")
+        log("Running #{csv_cmd}\n")
+        system(csv_cmd)
 
-        uniq_sort_file(out_domains_tmp)
-        File.rename(out_domains_tmp, out_domains)
-
-        uniq_sort_file(out_ipv4_tmp)
-        File.rename(out_ipv4_tmp, out_ipv4)
-
-        uniq_sort_file(out_ipv6_tmp)
-        File.rename(out_ipv6_tmp, out_ipv6)
-
-        uniq_sort_file(out_hosts_tmp)
-        File.rename(out_hosts_tmp, out_hosts)
+        [
+          "#{norm}/czds-names.gz",
+          "#{norm}/czds-names-inverse.gz"
+        ].each do |f|
+          o = f.sub(".gz", ".mtbl")
+          mtbl_cmd = "nice #{gzip_command} -dc #{f} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+          log("Running #{mtbl_cmd}")
+          system(mtbl_cmd)
+        end
 
         File.open(File.join(norm, "_normalized_"), "wb") {|fd|}
       end

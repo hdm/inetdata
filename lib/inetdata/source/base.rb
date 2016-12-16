@@ -35,7 +35,7 @@ module InetData
 
       def fail(reason)
         log("ERROR: #{reason}")
-	raise RuntimeError, "[#{self.name}] FATAL ERROR: #{reason}"
+	      raise RuntimeError, "[#{self.name}] FATAL ERROR: #{reason}"
       end
 
       def available?
@@ -64,13 +64,23 @@ module InetData
         dname.sub(/\.$/, '')
       end
 
-      def decompress_gzfile(path)
-        cmd = ["zcat"]
-
-        has_pigz = `which pigz`
-        if has_pigz.length > 0
-          cmd = ["pigz", "-dc"]
+      def inetdata_parsers_available?
+        utils = %W{csv2mtbl inetdata-csvrollup inetdata-csvsplit inetdata-dns2mtbl inetdata-zone2csv json2mtbl lines2mtbl mq}
+        utils.each do |name|
+          unless `which #{name}`.length > 0
+            dlog("Missing inetdata-parsers command: #{name}")
+            return
+          end
         end
+        true
+      end
+
+      def gzip_command
+        @gzip_command ||= (`which pigz`.length > 0) ? "pigz" : "gzip"
+      end
+
+      def decompress_gzfile(path)
+        cmd = [gzip_command, "-dc"]
         cmd.push(path)
 
         dlog("Decompressing #{path} with #{cmd} for #{self.name}...")
@@ -124,12 +134,20 @@ module InetData
         true
       end
 
-      def get_sort_options
-        "-S #{get_max_ram} --parallel=#{get_max_cores}"
+      def get_tempdir
+        ENV['HOME'] || "/tmp"
       end
 
-      def get_max_ram
+      def get_sort_options
+        "-S #{get_max_ram_sort} --parallel=#{get_max_cores}"
+      end
+
+      def get_max_ram_sort
         config['max_ram'] || '50%'
+      end
+
+      def get_total_ram
+        @max_total_ram ||= `free -g | grep ^Mem`.split(/\s+/)[1].to_i
       end
 
       def get_max_cores
