@@ -5,9 +5,14 @@ Download internet data from various sources
 ## Dependencies
 
 ### Ubuntu
-  * apt-get install coreutils build-essential libssl-dev curl gnupg pigz 
+  * sudo apt-get install coreutils build-essential libssl-dev curl gnupg pigz 
 
-### RVM
+### Ruby
+
+#### Ubuntu 16.04 LTS
+ * sudo apt-get install ruby
+
+#### Other Distributions
   * gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
   * \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.3.3
 
