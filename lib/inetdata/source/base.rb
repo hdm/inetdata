@@ -65,7 +65,7 @@ module InetData
       end
 
       def inetdata_parsers_available?
-        utils = %W{csv2mtbl inetdata-csvrollup inetdata-csvsplit inetdata-dns2mtbl inetdata-zone2csv json2mtbl lines2mtbl mq}
+        utils = %W{inetdata-arin-org2cidrs inetdata-csv2mtbl inetdata-csvrollup inetdata-csvsplit inetdata-dns2mtbl inetdata-hostnames2domains inetdata-json2mtbl inetdata-lines2mtbl inetdata-parsers-xc inetdata-zone2csv mq}
         utils.each do |name|
           unless `which #{name}`.length > 0
             dlog("Missing inetdata-parsers command: #{name}")
