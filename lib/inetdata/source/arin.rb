@@ -67,13 +67,40 @@ module InetData
         dir  = File.expand_path(File.join(storage_path, date))
         FileUtils.mkdir_p(dir)
 
-	%W{ nets asns orgs pocs }.each do |ftype|
+	      %W{ nets asns orgs pocs }.each do |ftype|
           name = "#{ftype}.xml"
           url  = "https://www.arin.net/public/secure/downloads/bulkwhois/#{name}?apikey=" + config['arin_api_key']
           dst  = File.join(dir, name)
           log("Dowloading #{dst}")
           download_file(url, dst)
         end
+      end
+
+      #
+      # Normalize the latest ARIN data
+      #
+      def normalize
+        data = latest_data
+        norm = File.join(data, "normalized")
+        FileUtils.mkdir_p(norm)
+
+        if File.exists?(File.join(norm, "_normalized_"))
+          log("Normalized data is already present for #{data}")
+          return true
+        end
+
+        unless inetdata_parsers_available?
+          log("The inetdata-parsers tools are not in the execution path, aborting normalization")
+          return false
+        end
+
+        %W{ nets asns orgs pocs }.each do |ftype|
+          cmd = "nice inetdata-arin-xml2json #{data}/#{ftype}.xml > #{norm}/#{ftype}.json"
+          log("Running #{cmd}\n")
+          system(cmd)
+        end
+
+        File.open(File.join(norm, "_normalized_"), "wb") {|fd|}
       end
 
       #

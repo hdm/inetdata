@@ -67,7 +67,8 @@ module InetData
       def inetdata_parsers_available?
         utils = %W{
             inetdata-arin-org2cidrs inetdata-csv2mtbl inetdata-csvrollup inetdata-csvsplit inetdata-dns2mtbl
-            inetdata-hostnames2domains inetdata-json2mtbl inetdata-lines2mtbl inetdata-zone2csv mq
+            inetdata-hostnames2domains inetdata-json2mtbl inetdata-lines2mtbl inetdata-zone2csv inetdata-arin-xml2json
+            mq
         }
         utils.each do |name|
           unless `which #{name}`.length > 0
