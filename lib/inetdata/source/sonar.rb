@@ -211,6 +211,37 @@ module InetData
         latest_data("-rdns")
       end
 
+      #
+      # Find the most recent normalized dataset
+      #
+      def latest_normalized_data(dtype)
+        path = Dir["#{storage_path}/normalized/*#{dtype}"].sort { |a,b|
+          File.basename(b).split(/[^\d]+/).first.to_i <=>
+          File.basename(a).split(/[^\d]+/).first.to_i
+        }.first
+
+        if not path
+          raise RuntimeError, "No #{dtype} normalized_dataset available for #{self.name}"
+        end
+
+        path
+      end
+
+      def latest_normalized_fdns_names_mtbl
+        latest_normalized_data("_dnsrecords_all-names.mtbl")
+      end
+
+      def latest_normalized_fdns_names_inverse_mtbl
+        latest_normalized_data("_dnsrecords_all-names-inverse.mtbl")
+      end
+
+      def latest_normalized_rdns_names_mtbl
+        latest_normalized_data("-rdns-names.mtbl")
+      end
+
+      def latest_normalized_rdns_names_inverse_mtbl
+        latest_normalized_data("-rdns-names-inverse.mtbl")
+      end
     end
   end
 end
