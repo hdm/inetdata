@@ -25,11 +25,17 @@ sources = []
 
 allowed_sources.each do |sname|
   s = sname.new(config)
-  if s.available?
-    sources << s
-  else
+  if ! s.available?
     logger.log("Warning: Source #{s.name} is disabled due to configuration")
+    next
   end
+
+  if s.manual? && (options[:selected_sources].nil? || ! options[:selected_sources].include?(s.name))
+    logger.log("Warning: Source #{s.name} must be specified manually")
+  end
+
+  sources << s
+
 end
 
 if options[:list_sources]

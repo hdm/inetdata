@@ -2,6 +2,10 @@ module InetData
   module Source
     class Censys < Base
 
+      def manual?
+        true
+      end
+
       def available?
         config['censys_api_id'].to_s.length > 0 &&
         config['censys_secret'].to_s.length > 0

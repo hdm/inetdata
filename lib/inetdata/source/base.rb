@@ -44,6 +44,10 @@ module InetData
         true
       end
 
+      def manual?
+        false
+      end
+
       def storage_path
         File.expand_path(File.join(config['storage'], self.name))
       end

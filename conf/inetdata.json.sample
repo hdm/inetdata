@@ -111,5 +111,24 @@
     "http://ftp.apnic.net/apnic/dbase/data/twnic.pn.gz",
     "http://ftp.afrinic.net/dbase/AFRINIC.CURRENTSERIAL",
     "http://ftp.afrinic.net/dbase/afrinic.db.gz"
-  ]
+  ],
+
+  "ct_logs": {
+    "pilot":      "https://ct.googleapis.com/pilot",
+    "aviator":    "https://ct.googleapis.com/aviator",
+    "rocketeer":  "https://ct.googleapis.com/rocketeer",
+    "submariner": "https://ct.googleapis.com/submariner",
+    "skydiver":   "https://ct.googleapis.com/skydiver",
+    "icarus":     "https://ct.googleapis.com/icarus",
+    "daedalus":   "https://ct.googleapis.com/daedalus",
+    "digicert1":  "https://ct1.digicert-ct.com/log",
+    "izenpe1":    "https://ct.izenpe.eus",
+    "symantec1":  "https://ct.ws.symantec.com",
+    "symantec2":  "https://vega.ws.symantec.com",
+    "venafi1":    "https://ctlog.api.venafi.com",
+    "wosign2":    "https://ctlog.wosign.com",
+    "cnnic1":     "https://ctserver.cnnic.cn",
+    "startssl1":  "https://ct.startssl.com",
+    "ctcn1":      "https://www.certificatetransparency.cn/ct"
+  }
 }
