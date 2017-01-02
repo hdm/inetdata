@@ -1,6 +1,6 @@
 module InetData
   module Source
-    class Censys < Base
+    class Censys_IPv4 < Base
 
       def manual?
         true
@@ -48,7 +48,7 @@ module InetData
             return true
           end
 
-          log("Downloading #{src} with #{res['Content-Length']} bytes...")
+          log("Downloading #{src} with #{res['Content-Length']} bytes to #{dst}...")
           outp = File.open(tmp, "wb")
           res.read_body do |chunk|
             outp.write(chunk)
@@ -108,7 +108,7 @@ module InetData
         mqueue = []
         dqueue = {}
         if dbase = meta['primary_series']
-          ['All X.509 Certificates', 'IPv4 Snapshots'].each do |dtype|
+          ['IPv4 Snapshots'].each do |dtype|
             if dbase[dtype] &&
                dbase[dtype]['latest_result'] &&
                dbase[dtype]['latest_result']['details_url']
