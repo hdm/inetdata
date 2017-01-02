@@ -50,24 +50,25 @@ module InetData
         nrecs = 0
         state = nil
 
-        data_file = File.join(storage_path, "#{log_name}_data.json")
-        meta_file = File.join(storage_path, "#{log_name}_meta.json")
 
+        meta_file = File.join(storage_path, "#{log_name}_meta.json")
         if File.exists?(meta_file)
           state = JSON.parse(File.read(meta_file))
         end
-
         state ||= { 'entries' => 0 }
+
+        # Data files are in the format of <log>_data_<start-record>.json
+        data_file = File.join(storage_path, "#{log_name}_data_#{state['entries']}.json")
 
         sth = ct_request(log_base + '/ct/v1/get-sth')
         return unless sth and sth['tree_size']
 
         if sth['tree_size'] == state['entries']
-          log("CT #{log_name} is already synchronized with #{state['entries']} entries")
+          log("#{log_name} is already synchronized with #{state['entries']} entries")
           return
         end
 
-        log("CT #{log_name} has #{sth['tree_size']} total records available")
+        log("#{log_name} has #{sth['tree_size']} total records available")
 
         while state['entries'] < (sth['tree_size'] - 1)
 
@@ -77,7 +78,7 @@ module InetData
           get_url = log_base + "/ct/v1/get-entries?start=#{entry_beg}&end=#{entry_end}"
           data = ct_request(get_url)
           if not (data && data['entries'])
-            fail("CT #{log_name} returned bad data: #{data.inspect}")
+            fail("#{log_name} returned bad data: #{data.inspect}")
             return
           end
 
@@ -96,10 +97,16 @@ module InetData
             fd.puts(state.to_json)
           end
 
-          log("CT #{log_name} downloaded #{state['entries']}/#{sth['tree_size']} records")
+          log("#{log_name} downloaded #{state['entries']}/#{sth['tree_size']} records")
         end
 
-        log("CT #{log_name} synchronized with #{nrecs} new entries (#{state['entries']} total)")
+        # Compress the data file if new records were downloaded
+        if nrecs > 0
+          log("#{log_name} compressing data file containing #{nrecs} records: #{data_file}")
+          system("nice #{gzip_command} #{Shellwords.shellescape(data_file)}")
+        end
+
+        log("#{log_name} synchronized with #{nrecs} new entries (#{state['entries']} total)")
       end
 
       def download
@@ -116,7 +123,7 @@ module InetData
         ct_threads.each {|t| t.join }
       end
 
-      def normalize_x
+      def normalize
         data = storage_path
         norm = File.join(data, "normalized")
         FileUtils.mkdir_p(norm)
@@ -125,38 +132,21 @@ module InetData
           log("The inetdata-parsers tools are not in the execution path, aborting normalization")
           return false
         end
-      end
 
-      #
-      # Find the most recent dataset
-      #
-      def latest_data(dtype)
-        path = Dir["#{storage_path}/*#{dtype}.gz"].sort { |a,b|
-          File.basename(b).split(/[^\d]+/).first.to_i <=>
-          File.basename(a).split(/[^\d]+/).first.to_i
-        }.first
+        Dir["#{data}/*_data_*.json.gz"].sort.each do |src|
+          dst = File.join(norm, File.basename(src).sub(/\.json\.gz$/, '.hostnames.gz'))
+          next if File.exists?(dst)
 
-        if not path
-          raise RuntimeError, "No #{dtype} dataset available for #{self.name}"
+          host_cmd =
+            "nice #{gzip_command} -dc #{Shellwords.shellescape(src)} | " +
+            "nice inetdata-ct2hostnames | " +
+            "nice inetdata-hostnames2domains | " +
+            "LC_ALL=C nice sort -u #{get_sort_options} -T #{get_tempdir} | " +
+            "nice #{gzip_command} -c > #{Shellwords.shellescape(dst)}"
+
+          log("Processing #{src} with command: #{host_cmd}")
+          system(host_cmd)
         end
-
-        path
-      end
-
-      #
-      # Find the most recent normalized dataset
-      #
-      def latest_normalized_data(dtype)
-        path = Dir["#{storage_path}/normalized/*#{dtype}"].sort { |a,b|
-          File.basename(b).split(/[^\d]+/).first.to_i <=>
-          File.basename(a).split(/[^\d]+/).first.to_i
-        }.first
-
-        if not path
-          raise RuntimeError, "No #{dtype} normalized_dataset available for #{self.name}"
-        end
-
-        path
       end
 
     end
