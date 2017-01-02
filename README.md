@@ -5,7 +5,7 @@ Download and normalize internet data from various sources. This package is norma
 ## Dependencies
 
 ### Ubuntu
-  * sudo apt-get install coreutils build-essential libssl-dev curl gnupg pigz
+  * sudo apt-get install coreutils build-essential libssl-dev curl gnupg pigz liblz4-tool
 
 ### Ruby
 
