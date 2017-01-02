@@ -1,7 +1,3 @@
 conf/inetdata.json
-conf/domains.txt
-conf/networks.txt
-data/cache/*
-data/logs/*
-data/report/*
-
+data/cache
+logs
