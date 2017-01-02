@@ -141,6 +141,55 @@ module InetData
         end
       end
 
+      def normalize
+        data = storage_path
+        norm = File.join(data, "normalized")
+        FileUtils.mkdir_p(norm)
+
+        unless inetdata_parsers_available?
+          log("The inetdata-parsers tools are not in the execution path, aborting normalization")
+          return false
+        end
+
+        src = latest_data
+        unless src
+          log("Error: no dataset is available")
+          return
+        end
+
+        dst = src.sub(/\.json\.lz4$/, '.mtbl')
+        if File.exists?(dst)
+          log("Data file #{src} is already normalized at #{dst}")
+          return
+        end
+
+        if `which lz4cat`.to_s.length == 0
+          log("Error: the 'lz4cat' binary is not available")
+          return
+        end
+
+        mtbl_cmd = "nice lz4cat -dc #{Shellwords.shellescape(src)} | " +
+                   "nice inetdata-json2mtbl -k ip -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{Shellwords.shellescape(dst)}"
+        log("Running #{mtbl_cmd}")
+        system(mtbl_cmd)
+      end
+
+      #
+      # Find the most recent dataset
+      #
+      def latest_data
+        path = Dir["#{storage_path}/ipv4-*.json.lz4"].sort { |a,b|
+          File.basename(b).sub(/.*ipv4-(\d+)T.*/){|x| $1 }.to_i <=>
+          File.basename(a).sub(/.*ipv4-(\d+)T.*/){|x| $1 }.to_i
+        }.first
+
+        if not path
+          raise RuntimeError, "No IPv4 dataset available"
+        end
+
+        path
+      end
+
     end
   end
 end
