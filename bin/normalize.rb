@@ -32,6 +32,7 @@ allowed_sources.each do |sname|
 
   if s.manual? && (options[:selected_sources].nil? || ! options[:selected_sources].include?(s.name))
     logger.log("Warning: Source #{s.name} must be specified manually")
+    next
   end
 
   sources << s

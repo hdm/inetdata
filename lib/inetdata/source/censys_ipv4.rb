@@ -184,7 +184,23 @@ module InetData
         }.first
 
         if not path
-          raise RuntimeError, "No IPv4 dataset available"
+          raise RuntimeError, "No IPv4 dataset available for #{self.name}"
+        end
+
+        path
+      end
+
+      #
+      # Find the most recent normalized dataset
+      #
+      def latest_normalized_data(dtype)
+        path = Dir["#{storage_path}/normalized/ipv4-*.mtbl"].sort { |a,b|
+          File.basename(b).sub(/.*ipv4-(\d+)T.*/){|x| $1 }.to_i <=>
+          File.basename(a).sub(/.*ipv4-(\d+)T.*/){|x| $1 }.to_i
+        }.first
+
+        if not path
+          raise RuntimeError, "No IPv4 normalized_dataset available for #{self.name}"
         end
 
         path
