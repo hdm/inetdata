@@ -62,6 +62,7 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 | ------------- |:-------------:| -----:|
 | [Sonar](https://scans.io) | FDNS, RDNS, UDP, TCP, TLS, HTTP, HTTPS scan data  |  FREE |
 | [Censys.io](https://www.censys.io/)| TCP, TLS, HTTP, HTTPS scan data    | FREE |
+| [CT](https://www.certificate-transparency.org/)| TLS | FREE |
 | [CZDS](https://czds.icann.org/) | DNS zone files for "new" global TLDs  | FREE |
 | [ARIN](https://www.arin.net) | American IP registry information (ASN, Org, Net, Poc) | FREE |
 | [CAIDA PFX2AS IPv4](http://data.caida.org/datasets/routing/routeviews-prefix2as) | Daily snapshots of ASN to IPv4 mappings | FREE |
@@ -93,6 +94,15 @@ source, register for an account at https://censys.io/ and fill in the following 
   "censys_secret": "<censys-secret>",
 }
 ```
+
+Specify the censys source (``-s censys``) to use this with ``bin/download.rb`` or ``bin/normalize.rb``
+
+
+### Certificate Transparency
+
+The download script pulls down the full CT logs. Unfortunately, due to size of these logs this must be excluded from automatic downloads, since the download process can take more than 12 hours, and the normalize another 5-12 hours. 
+
+Specify the ct source (``-s ct``) to use this with ``bin/download.rb`` or ``bin/normalize.rb``
 
 ### CZDS (ICANN)
 
