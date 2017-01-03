@@ -147,7 +147,7 @@ module InetData
         rdns_file = latest_fdns_data
         rdns_mtbl = File.join(norm, File.basename(rdns_file).sub(".gz", "-names-inverse.mtbl"))
 
-        if File.exists?(fdns_mtbl)
+        if File.exists?(fdns_mtbl) && File.size(fdns_mtbl) > 0
           log("Normalized data is already present for FDNS #{data} at #{fdns_mtbl}")
         else
           output_base = File.join(norm, File.basename(fdns_file).sub(".gz", ""))
@@ -166,7 +166,7 @@ module InetData
           end
         end
 
-        if File.exists?(rdns_mtbl)
+        if File.exists?(rdns_mtbl) && File.size(rdns_mtbl) > 0
           log("Normalized data is already present for RDNS #{data} at #{rdns_mtbl}")
         else
           output_base = File.join(norm, File.basename(rdns_file).sub(".gz", ""))
