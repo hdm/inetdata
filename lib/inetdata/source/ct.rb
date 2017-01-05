@@ -134,13 +134,12 @@ module InetData
         end
 
         Dir["#{data}/*_data_*.json.gz"].sort.each do |src|
-          dst = File.join(norm, File.basename(src).sub(/\.json\.gz$/, '.hostnames.gz'))
+          dst = File.join(norm, File.basename(src).sub(/\.json\.gz$/, '.names.gz'))
           next if File.exists?(dst)
 
           host_cmd =
             "nice #{gzip_command} -dc #{Shellwords.shellescape(src)} | " +
             "nice inetdata-ct2hostnames | " +
-            "nice inetdata-hostnames2domains | " +
             "LC_ALL=C nice sort -u #{get_sort_options} -T #{get_tempdir} | " +
             "nice #{gzip_command} -c > #{Shellwords.shellescape(dst)}"
 
