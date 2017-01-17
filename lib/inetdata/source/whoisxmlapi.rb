@@ -22,7 +22,7 @@ module InetData
 
           res = http.request(req)
 
-          unless (res and res.code.to_i == 200 and res.body.to_s.index("Index of /"))
+          unless (res and res.code.to_i == 200 and res.body.to_s.index("Last modified"))
             if res
               raise RuntimeError.new("Unexpected reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
             else
