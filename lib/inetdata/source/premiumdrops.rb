@@ -170,7 +170,7 @@ module InetData
           csv_cmd = "nice " +
             ((origin == "sk") ? "cat" : "#{gzip_command} -dc") + " #{Shellwords.shellescape(zone_file)} | " +
             "nice inetdata-zone2csv | " +
-            "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{norm}/#{origin}"
+            "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{norm}/#{origin}"
 
           log("Running #{csv_cmd}\n")
           system(csv_cmd)
@@ -180,7 +180,7 @@ module InetData
             "#{norm}/#{origin}-names-inverse.gz"
           ].each do |f|
             o = f.sub(".gz", ".mtbl")
-            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | nice inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | nice inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{o}"
             log("Running #{mtbl_cmd}")
             system(mtbl_cmd)
           end

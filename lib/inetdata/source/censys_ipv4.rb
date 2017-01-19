@@ -169,7 +169,7 @@ module InetData
         end
 
         mtbl_cmd = "nice lz4cat -dc #{Shellwords.shellescape(src)} | " +
-                   "nice inetdata-json2mtbl -k ip -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{Shellwords.shellescape(dst)}"
+                   "nice inetdata-json2mtbl -k ip -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{Shellwords.shellescape(dst)}"
         log("Running #{mtbl_cmd}")
         system(mtbl_cmd)
       end
