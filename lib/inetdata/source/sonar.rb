@@ -152,7 +152,7 @@ module InetData
         else
           output_base = File.join(norm, File.basename(fdns_file).sub(".gz", ""))
 
-          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(fdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{output_base}"
+          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(fdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
           log("Running #{csv_cmd}")
           system(csv_cmd)
           [
@@ -160,7 +160,7 @@ module InetData
             "#{output_base}-names-inverse.gz"
           ].each do |f|
             o = f.sub(".gz", ".mtbl")
-            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{o}"
             log("Running #{mtbl_cmd}")
             system(mtbl_cmd)
           end
@@ -171,7 +171,7 @@ module InetData
         else
           output_base = File.join(norm, File.basename(rdns_file).sub(".gz", ""))
 
-          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(rdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{output_base}"
+          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(rdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
           log("Running #{csv_cmd}")
           system(cmd)
           [
@@ -179,7 +179,7 @@ module InetData
             "#{output_base}-names-inverse.gz"
           ].each do |f|
             o = f.sub(".gz", ".mtbl")
-            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/4.0).to_i} #{o}"
+            mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{o}"
             log("Running #{mtbl_cmd}")
             system(mtbl_cmd)
           end
