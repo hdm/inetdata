@@ -96,12 +96,12 @@ module InetData
         queue = []
         if meta['studies']
 
-          fdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.fdns' }
+          fdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.fdns_v2' }
           if fdns && fdns.last && fdns.last['files'] && fdns.last['files'].last && fdns.last['files'].last['name']
             queue << fdns.last['files'].last['name']
           end
 
-          rdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.rdns' }
+          rdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.rdns_v2' }
           if rdns && rdns.last && rdns.last['files'] && rdns.last['files'].last && rdns.last['files'].last['name']
             queue << rdns.last['files'].last['name']
           end
@@ -142,17 +142,17 @@ module InetData
         end
 
         fdns_file = latest_fdns_data
-        fdns_mtbl = File.join(norm, File.basename(fdns_file).sub(".gz", "-names-inverse.mtbl"))
+        fdns_mtbl = File.join(norm, File.basename(fdns_file).sub(".json.gz", "-names-inverse.mtbl"))
 
         rdns_file = latest_fdns_data
-        rdns_mtbl = File.join(norm, File.basename(rdns_file).sub(".gz", "-names-inverse.mtbl"))
+        rdns_mtbl = File.join(norm, File.basename(rdns_file).sub(".json.gz", "-names-inverse.mtbl"))
 
         if File.exists?(fdns_mtbl) && File.size(fdns_mtbl) > 0
           log("Normalized data is already present for FDNS #{data} at #{fdns_mtbl}")
         else
-          output_base = File.join(norm, File.basename(fdns_file).sub(".gz", ""))
+          output_base = File.join(norm, File.basename(fdns_file).sub(".json.gz", ""))
 
-          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(fdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
+          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(fdns_file)} | nice inetdata-sonardnsv2-split -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
           log("Running #{csv_cmd}")
           system(csv_cmd)
           [
@@ -169,9 +169,9 @@ module InetData
         if File.exists?(rdns_mtbl) && File.size(rdns_mtbl) > 0
           log("Normalized data is already present for RDNS #{data} at #{rdns_mtbl}")
         else
-          output_base = File.join(norm, File.basename(rdns_file).sub(".gz", ""))
+          output_base = File.join(norm, File.basename(rdns_file).sub(".json.gz", ""))
 
-          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(rdns_file)} | nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
+          csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(rdns_file)} | nice inetdata-sonardnsv2-split -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
           log("Running #{csv_cmd}")
           system(cmd)
           [
@@ -204,11 +204,11 @@ module InetData
       end
 
       def latest_fdns_data
-        latest_data("_dnsrecords_all")
+        latest_data("-fdns.json")
       end
 
       def latest_rdns_data
-        latest_data("-rdns")
+        latest_data("-rdns.json")
       end
 
       #
@@ -228,11 +228,11 @@ module InetData
       end
 
       def latest_normalized_fdns_names_mtbl
-        latest_normalized_data("_dnsrecords_all-names.mtbl")
+        latest_normalized_data("_fdns-names.mtbl")
       end
 
       def latest_normalized_fdns_names_inverse_mtbl
-        latest_normalized_data("_dnsrecords_all-names-inverse.mtbl")
+        latest_normalized_data("_fdns-names-inverse.mtbl")
       end
 
       def latest_normalized_rdns_names_mtbl

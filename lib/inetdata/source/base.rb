@@ -75,7 +75,7 @@ module InetData
         utils = %W{
             inetdata-arin-org2cidrs inetdata-csv2mtbl inetdata-csvrollup inetdata-csvsplit inetdata-dns2mtbl
             inetdata-hostnames2domains inetdata-json2mtbl inetdata-lines2mtbl inetdata-zone2csv inetdata-arin-xml2json
-            inetdata-ct2hostnames mq
+            inetdata-ct2hostnames mq inetdata-sonardnsv2-split
         }
         utils.each do |name|
           unless `which #{name}`.length > 0
