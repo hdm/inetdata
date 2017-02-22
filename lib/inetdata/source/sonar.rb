@@ -144,7 +144,7 @@ module InetData
         fdns_file = latest_fdns_data
         fdns_mtbl = File.join(norm, File.basename(fdns_file).sub(".json.gz", "-names-inverse.mtbl"))
 
-        rdns_file = latest_fdns_data
+        rdns_file = latest_rdns_data
         rdns_mtbl = File.join(norm, File.basename(rdns_file).sub(".json.gz", "-names-inverse.mtbl"))
 
         if File.exists?(fdns_mtbl) && File.size(fdns_mtbl) > 0
