@@ -173,7 +173,7 @@ module InetData
 
           csv_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(rdns_file)} | nice inetdata-sonardnsv2-split -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{output_base}"
           log("Running #{csv_cmd}")
-          system(cmd)
+          system(csv_cmd)
           [
             "#{output_base}-names.gz",
             "#{output_base}-names-inverse.gz"
