@@ -126,6 +126,7 @@
     "symantec1":  "https://ct.ws.symantec.com",
     "symantec2":  "https://vega.ws.symantec.com",
     "venafi1":    "https://ctlog.api.venafi.com",
+    "venafi2":    "https://ctlog-gen2.api.venafi.com",
     "wosign2":    "https://ctlog.wosign.com",
     "cnnic1":     "https://ctserver.cnnic.cn",
     "startssl1":  "https://ct.startssl.com",
