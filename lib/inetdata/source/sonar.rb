@@ -228,11 +228,11 @@ module InetData
       end
 
       def latest_normalized_fdns_names_mtbl
-        latest_normalized_data("_fdns-names.mtbl")
+        latest_normalized_data("-fdns-names.mtbl")
       end
 
       def latest_normalized_fdns_names_inverse_mtbl
-        latest_normalized_data("_fdns-names-inverse.mtbl")
+        latest_normalized_data("-fdns-names-inverse.mtbl")
       end
 
       def latest_normalized_rdns_names_mtbl
