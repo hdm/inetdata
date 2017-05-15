@@ -179,10 +179,11 @@ module InetData
             "#{norm}/#{origin}-names.gz",
             "#{norm}/#{origin}-names-inverse.gz"
           ].each do |f|
-            o = f.sub(".gz", ".mtbl")
+            o = f.sub(".gz", ".mtbl.tmp")
             mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | nice inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{o}"
             log("Running #{mtbl_cmd}")
             system(mtbl_cmd)
+            File.rename(o, o.gsub(/\.tmp$/, ''))
           end
         end
         File.open(File.join(norm, "_normalized_"), "wb") {|fd|}

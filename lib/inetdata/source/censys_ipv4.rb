@@ -162,6 +162,7 @@ module InetData
           log("Data file #{src} is already normalized at #{dst}")
           return
         end
+        dst_tmp = dst + ".tmp"
 
         if `which lz4cat`.to_s.length == 0
           log("Error: the 'lz4cat' binary is not available")
@@ -169,9 +170,10 @@ module InetData
         end
 
         mtbl_cmd = "nice lz4cat -dc #{Shellwords.shellescape(src)} | " +
-                   "nice inetdata-json2mtbl -k ip -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{Shellwords.shellescape(dst)}"
+                   "nice inetdata-json2mtbl -k ip -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{Shellwords.shellescape(dst_tmp)}"
         log("Running #{mtbl_cmd}")
         system(mtbl_cmd)
+        File.rename(dst_tmp, dst)
       end
 
       #

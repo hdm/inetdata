@@ -136,13 +136,15 @@ module InetData
         Dir["#{data}/*_data_*.json.gz"].sort.each do |src|
           dst = File.join(norm, File.basename(src).sub(/\.json\.gz$/, '.mtbl'))
           next if File.exists?(dst)
+          dst_tmp = dst + ".tmp"
 
           host_cmd =
             "nice #{gzip_command} -dc #{Shellwords.shellescape(src)} | " +
-            "nice inetdata-ct2mtbl #{Shellwords.shellescape(dst)}"
+            "nice inetdata-ct2mtbl #{Shellwords.shellescape(dst_tmp)}"
 
           log("Processing #{src} with command: #{host_cmd}")
           system(host_cmd)
+          File.rename(dst_tmp, dst)
         end
       end
 
