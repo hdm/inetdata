@@ -124,10 +124,12 @@ module InetData
       #
       def normalize
         data = latest_data
-        norm = File.join(data, "normalized")
+        norm = File.expand_path(File.join(data, "..", "normalized"))
         FileUtils.mkdir_p(norm)
 
-        if File.exists?(File.join(norm, "_normalized_"))
+        date = data.split("/").last
+
+        if File.exists?(File.join(norm, "#{date}-czds-names.mtbl"))
           log("Normalized data is already present for #{data}")
           return true
         end
@@ -139,14 +141,14 @@ module InetData
 
         csv_cmd = "nice #{gzip_command} -dc #{data}/*.gz | " +
           "nice inetdata-zone2csv | " +
-          "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{norm}/czds"
+          "nice inetdata-csvsplit -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{norm}/#{date}-czds"
 
         log("Running #{csv_cmd}\n")
         system(csv_cmd)
 
         [
-          "#{norm}/czds-names.gz",
-          "#{norm}/czds-names-inverse.gz"
+          "#{norm}/#{date}-czds-names.gz",
+          "#{norm}/#{date}-czds-names-inverse.gz"
         ].each do |f|
           o = f.sub(".gz", ".mtbl.tmp")
           mtbl_cmd = "nice #{gzip_command} -dc #{Shellwords.shellescape(f)} | inetdata-dns2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{o}"
@@ -154,8 +156,6 @@ module InetData
           system(mtbl_cmd)
           File.rename(o, o.gsub(/\.tmp$/, ''))
         end
-
-        File.open(File.join(norm, "_normalized_"), "wb") {|fd|}
       end
 
       #
