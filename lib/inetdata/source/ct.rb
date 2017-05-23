@@ -50,7 +50,6 @@ module InetData
         nrecs = 0
         state = nil
 
-
         meta_file = File.join(storage_path, "#{log_name}_meta.json")
         if File.exists?(meta_file)
           state = JSON.parse(File.read(meta_file))
@@ -140,7 +139,7 @@ module InetData
 
           host_cmd =
             "nice #{gzip_command} -dc #{Shellwords.shellescape(src)} | " +
-            "nice inetdata-ct2mtbl #{Shellwords.shellescape(dst_tmp)}"
+            "nice inetdata-ct2mtbl -t #{get_tempdir} -m #{(get_total_ram/8.0).to_i} #{Shellwords.shellescape(dst_tmp)}"
 
           log("Processing #{src} with command: #{host_cmd}")
           system(host_cmd)
