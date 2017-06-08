@@ -18,6 +18,9 @@ module InetData
             http.use_ssl = true
           end
 
+          # Necessary but probably not harmful given how the data is used
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
           req    = Net::HTTP::Get.new(target.request_uri)
           res    = http.request(req)
 
@@ -116,7 +119,13 @@ module InetData
 
         ct_threads = []
         ct_logs.each_pair do |log_name, log_base|
-          ct_threads << Thread.new{ ct_sync(log_name, log_base) }
+          ct_threads << Thread.new(log_name, log_base) do |lname,lbase|
+            begin
+              ct_sync(lname, lbase)
+            rescue ::Exception => e
+              log("#{lname} failed to sync: #{e} #{e.backtrace}")
+            end
+          end
         end
 
         ct_threads.each {|t| t.join }

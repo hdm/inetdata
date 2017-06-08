@@ -122,14 +122,18 @@
     "icarus":     "https://ct.googleapis.com/icarus",
     "daedalus":   "https://ct.googleapis.com/daedalus",
     "digicert1":  "https://ct1.digicert-ct.com/log",
+    "digicert2":  "https://ct2.digicert-ct.com/log",
     "izenpe1":    "https://ct.izenpe.eus",
     "symantec1":  "https://ct.ws.symantec.com",
     "symantec2":  "https://vega.ws.symantec.com",
+    "symantec3":  "https://sirius.ws.symantec.com",
     "venafi1":    "https://ctlog.api.venafi.com",
     "venafi2":    "https://ctlog-gen2.api.venafi.com",
     "wosign2":    "https://ctlog.wosign.com",
     "cnnic1":     "https://ctserver.cnnic.cn",
     "startssl1":  "https://ct.startssl.com",
-    "ctcn1":      "https://www.certificatetransparency.cn/ct"
+    "ctcn1":      "https://www.certificatetransparency.cn/ct",
+    "gdca1":      "https://ct.gdca.com.cn",
+    "gdca2":      "https://ctlog.gdca.com.cn"
   }
 }
