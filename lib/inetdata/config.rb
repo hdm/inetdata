@@ -1,5 +1,6 @@
 module InetData
   class Config < Hash
+
     def initialize(path=nil)
       root = File.expand_path(File.join(File.dirname(__FILE__), "..", ".."))
       unless path
@@ -19,7 +20,12 @@ module InetData
         end
         self[k] = File.expand_path(self[k].gsub(/^\.\//, self['root'] + '/'))
       end
-
     end
+
+    def self.raise_rlimit_nofiles(nofiles)
+      Process.setrlimit(Process::RLIMIT_NOFILE, nofiles)
+      Process.getrlimit(Process::RLIMIT_NOFILE).first
+    end
+
   end
 end

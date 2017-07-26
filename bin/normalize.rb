@@ -5,6 +5,26 @@ $LOAD_PATH.unshift(File.join(BASE_PATH, 'lib'))
 require 'inetdata'
 require 'optparse'
 
+desired_nofiles = 65535
+
+if InetData::Config.raise_rlimit_nofiles(desired_nofiles) < desired_nofiles
+  $stderr.puts %Q|Error: ulimit(nofiles) could not be raised to #{desired_nofiles}
+
+Update /etc/security/limits.conf to include:
+
+*    soft nofile #{desired_nofiles+1}
+*    hard nofile #{desired_nofiles+1}
+root soft nofile #{desired_nofiles+1}
+root hard nofile #{desired_nofiles+1}
+
+Logout, log back in, and check the output of 'ulimit -n'
+
+Without this change, normalization jobs may fail without warning
+
+  |
+  exit(1)
+end
+
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: normalize [options]"
