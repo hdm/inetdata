@@ -20,6 +20,22 @@ Download and normalize internet data from various sources. This package is norma
 
 The normalization process depends on the tools provided by the inetdata-parsers project. Please see the [README](https://github.com/fathom6/inetdata-parsers/) for more information. The inetdata-parsers tools need to be in the system path for the normalization process to complete.
 
+### System Limits
+
+The normalization process requires a large number of open file handles. If the normalizer is run as root, it will attempt to modify rlimit automatically. If the normalizer is run as a non-privileged user, the following changes need to be made:
+
+* Update /etc/security/limits.conf to include:
+```
+*    soft nofile 65536
+*    hard nofile 65536
+root soft nofile 65536
+root hard nofile 65536
+```
+
+* Log out and log back in
+* Check the output of ```ulimit -n``` to ensure that the soft and hard limits are updated
+
+
 ## Configuration
 
 A sample configuration file is provided in ``conf/inetdata.json.sample``. This should be copied to ``conf/inetdata.json`` and updated with your credentials and specific settings for your environment. Credential configuration is described in the *Data Sources* section below. The following system settings are important and should be tuned as needed:
