@@ -103,6 +103,8 @@ module InetData
       end
 
       def download
+        tries = 0
+
         config['whoisxmlapi_datasets'].each_pair do |dname,prefix|
           files = download_index(prefix)
           files.each do |fname|
@@ -134,7 +136,20 @@ module InetData
             FileUtils.mkdir_p(dir)
 
             log("Dowloading #{dst}")
-            download_file(url, dst)
+            begin
+              download_file(url, dst)
+            rescue ::Interrupt
+              raise $!
+            rescue ::Exception
+              if tries < self.max_tries
+                log("Download failed: #{url} #{$!.class} #{$!}, #{$!.backtrace} retrying...")
+                sleep(30)
+                retry
+              else
+                fail("Download failed: #{url} #{$!.class} #{$!} after #{tries} attempts")
+              end
+            end
+
           end
         end
       end
