@@ -57,12 +57,16 @@ module InetData
 
       def download_file(session_id, src, dst)
         tmp    = dst + ".tmp"
-        target = URI.parse(src)
         size   = 0
         ims    = false
 
-        http = Net::HTTP.new(target.host, target.port)
-        req = Net::HTTP::Get.new(target.request_uri)
+        http = Net::HTTP.new('www.premiumdrops.com', 443)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+        src = "/" + src
+
+        req = Net::HTTP::Get.new(src)
         req['Cookie'] = 'session=' + session_id
 
         if File.exists?(dst)
@@ -126,18 +130,21 @@ module InetData
 
           FileUtils.mkdir_p(dir)
 
-          # SSL is not enabled for the file download paths (!)
           http = Net::HTTP.new(target.host, target.port)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
           req = Net::HTTP::Get.new(target.path + '?' + target.query)
           req['Cookie'] = 'session=' + session_id
 
           res = http.request(req)
+
           unless res['Location']
             fail("No redirect for download of #{url}")
           end
 
           log("Dowloading #{dst}")
-          download_file(session_id, 'http://www.premiumdrops.com/' + res['Location'], dst)
+          download_file(session_id, res['Location'], dst)
         end
       end
 
