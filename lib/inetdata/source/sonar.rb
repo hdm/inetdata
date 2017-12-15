@@ -212,8 +212,8 @@ module InetData
       #
       def latest_data(dtype)
         path = Dir["#{storage_path}/*#{dtype}.gz"].sort { |a,b|
-          File.basename(b).split(/[^\d]+/).first.to_i <=>
-          File.basename(a).split(/[^\d]+/).first.to_i
+          File.basename(b).split(/[^\d\-]+/).first.gsub("-", '')[0,8].to_i <=>
+          File.basename(a).split(/[^\d\-]+/).first.gsub("-", '')[0,8].to_i
         }.first
 
         if not path
@@ -224,7 +224,7 @@ module InetData
       end
 
       def latest_fdns_data
-        latest_data("-fdns.json")
+        latest_data("-fdns*.json")
       end
 
       def latest_rdns_data
@@ -236,8 +236,8 @@ module InetData
       #
       def latest_normalized_data(dtype)
         path = Dir["#{storage_path}/normalized/*#{dtype}"].sort { |a,b|
-          File.basename(b).split(/[^\d]+/).first.to_i <=>
-          File.basename(a).split(/[^\d]+/).first.to_i
+          File.basename(b).split(/[^\d\-]+/).first.gsub("-", '')[0,8].to_i <=>
+          File.basename(a).split(/[^\d\-]+/).first.gsub("-", '')[0,8].to_i
         }.first
 
         if not path
