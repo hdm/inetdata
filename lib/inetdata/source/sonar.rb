@@ -2,7 +2,7 @@ module InetData
   module Source
     class Sonar < Base
 
-      def download_file(src, dst)
+      def download_file(src, dst,redirect_count=0)
         tmp    = dst + ".tmp"
         target = URI.parse(src)
         size   = 0
@@ -34,8 +34,26 @@ module InetData
             end
           end
 
+          if [301, 302].include?(res.code.to_i)
+
+            if redirect_count > 3
+              log(" > Skipped downloading of #{dst} due to rediret count being over limit: #{redirect_count}")
+              return true
+            end
+
+            new_src = res['Location'].to_s
+
+            if new_src.length == 0
+              log(" > Skipped downloading of #{dst} due to server redirect with no location")
+              return true
+            end
+
+            log(" > Download of #{src} moved to #{new_src}...")
+            return download_file(new_src, dst, redirect_count + 1)
+          end
+
           if res.code.to_i != 200
-            log(" > Skipped downloading of #{dst} due to server response of #{res.code} #{res.message}")
+            log(" > Skipped downloading of #{dst} due to server response of #{res.code} #{res.message} #{res['Location']}")
             return true
           end
 
