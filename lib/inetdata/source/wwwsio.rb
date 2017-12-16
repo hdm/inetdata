@@ -88,8 +88,15 @@ module InetData
           date = Time.now.strftime("%Y%m%d")
           dir  = File.expand_path(File.join(storage_path, date))
           dst  = File.join(dir, file)
+          tmp = dst + ".tmp"
+          tmp_gz = tmp + ".gz"
+          dst_gz = dst + ".gz"
+
           FileUtils.mkdir_p(dir)
-          download_file(url, dst)
+          download_file(url, tmp)
+          uniq_sort_file(tmp)
+          system("nice pigz #{tmp}")
+          File.rename(tmp_gz, dst_gz)
         end
       end
 
@@ -102,20 +109,11 @@ module InetData
         FileUtils.mkdir_p(norm)
 
         %W{ full new deleted }.each do |list|
-          src = File.join(data, "all_zones_#{list}.txt")
-          dst = File.join(norm, "all_zones_#{list}.txt")
-          tmp = dst + ".tmp"
-
-          if File.exists?(dst)
-            log("Normalized data is already present for #{data}")
-            return
-          end
-
-          FileUtils.cp(src, tmp)
-          uniq_sort_file(tmp)
-          File.rename(tmp, dst)
+          src = File.join(data, "all_zones_#{list}.txt.gz")
+          dst = File.join(norm, "all_zones_#{list}.txt.gz")
+          # Symlink since the source file is already sorted and compressed
+          FileUtils.ln_sf("../all_zones_#{list}.txt.gz", dst)
         end
-
       end
 
       #
