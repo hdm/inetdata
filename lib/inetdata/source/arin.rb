@@ -100,6 +100,12 @@ module InetData
           system(cmd)
         end
 
+        %W{ nets asns orgs pocs }.each do |ftype|
+          cmd = "nice inetdata-arin-xml2csv #{data}/#{ftype}.xml > #{norm}/#{ftype}.csv"
+          log("Running #{cmd}\n")
+          system(cmd)
+        end
+
         File.open(File.join(norm, "_normalized_"), "wb") {|fd|}
       end
 
