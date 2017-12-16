@@ -68,11 +68,24 @@ module InetData
         FileUtils.mkdir_p(dir)
 
 	      %W{ nets asns orgs pocs }.each do |ftype|
-          name = "#{ftype}.xml"
-          url  = "https://www.arin.net/public/secure/downloads/bulkwhois/#{name}?apikey=" + config['arin_api_key']
-          dst  = File.join(dir, name)
+          name   = "#{ftype}.xml"
+          url    = "https://www.arin.net/public/secure/downloads/bulkwhois/#{name}?apikey=" + config['arin_api_key']
+          dst    = File.join(dir, name)
+          dst_gz = dst + ".gz"
+          tmp    = dst + ".tmp"
+          tmp_gz = "#{tmp}.gz"
+
+          if File.exists?(dst_gz)
+            log("File already exists, skipping: #{dst_gz}")
+            next
+          end
+
           log("Dowloading #{dst}")
           download_file(url, dst)
+          cmd = "nice pigz #{tmp}"
+          log("Running #{cmd}\n")
+          system(cmd)
+          FileUtils.rename(tmp_gz, dst_gz)
         end
       end
 
@@ -95,13 +108,13 @@ module InetData
         end
 
         %W{ nets asns orgs pocs }.each do |ftype|
-          cmd = "nice inetdata-arin-xml2json #{data}/#{ftype}.xml > #{norm}/#{ftype}.json"
+          cmd = "nice pigz -d #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2json /dev/stdin | nice pigz -c > #{norm}/#{ftype}.json.gz"
           log("Running #{cmd}\n")
           system(cmd)
         end
 
         %W{ nets asns orgs pocs }.each do |ftype|
-          cmd = "nice inetdata-arin-xml2csv #{data}/#{ftype}.xml > #{norm}/#{ftype}.csv"
+          cmd = "nice pigz -d #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2csv /dev/stdin | nice pigz -c > #{norm}/#{ftype}.csv.gz"
           log("Running #{cmd}\n")
           system(cmd)
         end
