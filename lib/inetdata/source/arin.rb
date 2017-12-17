@@ -108,13 +108,13 @@ module InetData
         end
 
         %W{ nets asns orgs pocs }.each do |ftype|
-          cmd = "nice pigz -d #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2json /dev/stdin | nice pigz -c > #{norm}/#{ftype}.json.gz"
+          cmd = "nice pigz -dc #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2json /dev/stdin | nice pigz -c > #{norm}/#{ftype}.json.gz"
           log("Running #{cmd}\n")
           system(cmd)
         end
 
         %W{ nets asns orgs pocs }.each do |ftype|
-          cmd = "nice pigz -d #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2csv /dev/stdin | nice pigz -c > #{norm}/#{ftype}.csv.gz"
+          cmd = "nice pigz -dc #{data}/#{ftype}.xml.gz | nice inetdata-arin-xml2csv /dev/stdin | nice pigz -c > #{norm}/#{ftype}.csv.gz"
           log("Running #{cmd}\n")
           system(cmd)
         end
