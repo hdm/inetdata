@@ -81,11 +81,11 @@ module InetData
           end
 
           log("Dowloading #{dst}")
-          download_file(url, dst)
+          download_file(url, tmp)
           cmd = "nice pigz #{tmp}"
           log("Running #{cmd}\n")
           system(cmd)
-          FileUtils.rename(tmp_gz, dst_gz)
+          File.rename(tmp_gz, dst_gz)
         end
       end
 
