@@ -87,9 +87,7 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 | [UK Gov](https://www.gov.uk/government/publications/list-of-gov-uk-domain-names) | UK government domain names | FREE |
 | [RIR Delegations](http://ftp.arin.net/pub/stats/) | Regional IP allocations | FREE |
 | [PremiumDrops](http://premiumdrops.com/) | DNS zone files for com/net/info/org/biz/xxx/sk/us TLDs  | $24.95/mo |
-| [WWWS.io](https://wwws.io/) | Domains across many TLDs (~198m)  |   $9/mo |
 | [WhoisXMLAPI.com](https://WhoisXMLAPI.com/)  | New domain whois data  | $109/mo |
-
 
 ### Sonar
 
