@@ -157,21 +157,6 @@ Once an account has been registered, fill in the followingt credentials in conf/
 ```
 
 
-### WWWS.IO
-
-The download script pulls down the daily full domain list. This is a commercial service and requires a monthly subscription fee to access. WWWS.IO provides the daily zone at 10:00am CST each day and any cronjob that automates the download should be scheduled after this time. The normalization process sorts the addded, removed, and full list of domains.
-
-Once an account has been registered, fill in the followingt credentials in conf/inetdata.json:
-
-
-```json
-{
-  "wwwsio_username": "<email-address>",
-  "wwwsio_password": "<password>",
-}
-```
-
-
 ### WhoisXMLAPI (New Domains)
 
 The download script can pull down whois information for new domains from the WhoisXMLAPI.com service. This is a commercial service and requires a monthly subscription fee to access. WhoisXMLAPI's updates are ready at 10:00am CST each day and any cronjob that automates the download should be scheduled after this time.
