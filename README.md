@@ -77,7 +77,7 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 | Name          | Description     | Price |
 | ------------- |:-------------:| -----:|
 | [Sonar](https://scans.io) | FDNS, RDNS, UDP, TCP, TLS, HTTP, HTTPS scan data  |  FREE |
-| [Censys.io](https://www.censys.io/)| TCP, TLS, HTTP, HTTPS scan data    | FREE |
+| [Censys.io](https://www.censys.io/)| TCP, TLS, HTTP, HTTPS scan data    | FREE (non-commercial) |
 | [CT](https://www.certificate-transparency.org/)| TLS | FREE |
 | [CZDS](https://czds.icann.org/) | DNS zone files for "new" global TLDs  | FREE |
 | [ARIN](https://www.arin.net) | American IP registry information (ASN, Org, Net, Poc) | FREE |
