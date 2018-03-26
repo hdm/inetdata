@@ -18,7 +18,7 @@ Download and normalize internet data from various sources. This package is norma
 
 ### inetdata-parsers
 
-The normalization process depends on the tools provided by the inetdata-parsers project. Please see the [README](https://github.com/fathom6/inetdata-parsers/) for more information. The inetdata-parsers tools need to be in the system path for the normalization process to complete.
+The normalization process depends on the tools provided by the inetdata-parsers project. Please see the [README](https://github.com/hdm/inetdata-parsers/) for more information. The inetdata-parsers tools need to be in the system path for the normalization process to complete.
 
 ### System Limits
 
