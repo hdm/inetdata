@@ -77,7 +77,7 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 | Name          | Description     | Price |
 | ------------- |:-------------:| -----:|
 | [Sonar](https://scans.io) | FDNS, RDNS, UDP, TCP, TLS, HTTP, HTTPS scan data  |  FREE |
-| [Censys.io](https://www.censys.io/)| TCP, TLS, HTTP, HTTPS scan data    | FREE |
+| [Censys.io](https://www.censys.io/)| TCP, TLS, HTTP, HTTPS scan data    | FREE (non-commercial) |
 | [CT](https://www.certificate-transparency.org/)| TLS | FREE |
 | [CZDS](https://czds.icann.org/) | DNS zone files for "new" global TLDs  | FREE |
 | [ARIN](https://www.arin.net) | American IP registry information (ASN, Org, Net, Poc) | FREE |
@@ -87,9 +87,7 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 | [UK Gov](https://www.gov.uk/government/publications/list-of-gov-uk-domain-names) | UK government domain names | FREE |
 | [RIR Delegations](http://ftp.arin.net/pub/stats/) | Regional IP allocations | FREE |
 | [PremiumDrops](http://premiumdrops.com/) | DNS zone files for com/net/info/org/biz/xxx/sk/us TLDs  | $24.95/mo |
-| [WWWS.io](https://wwws.io/) | Domains across many TLDs (~198m)  |   $9/mo |
 | [WhoisXMLAPI.com](https://WhoisXMLAPI.com/)  | New domain whois data  | $109/mo |
-
 
 ### Sonar
 
@@ -155,21 +153,6 @@ Once an account has been registered, fill in the followingt credentials in conf/
 {
   "premiumdrops_username": "<email-address>",
   "premiumdrops_password": "<password>",
-}
-```
-
-
-### WWWS.IO
-
-The download script pulls down the daily full domain list. This is a commercial service and requires a monthly subscription fee to access. WWWS.IO provides the daily zone at 10:00am CST each day and any cronjob that automates the download should be scheduled after this time. The normalization process sorts the addded, removed, and full list of domains.
-
-Once an account has been registered, fill in the followingt credentials in conf/inetdata.json:
-
-
-```json
-{
-  "wwwsio_username": "<email-address>",
-  "wwwsio_password": "<password>",
 }
 ```
 
