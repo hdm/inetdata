@@ -8,7 +8,7 @@
   "DISABLED_max_ram": "16G",
   "DISABLED_max_cores" : "4",
 
-  "sonar_base_url": "https://scans.io",
+  "sonar_base_url": "https://opendata.rapid7.com",
 
   "censys_base_url": "https://www.censys.io/api/v1",
   "censys_api_id": "",

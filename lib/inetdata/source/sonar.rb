@@ -72,8 +72,8 @@ module InetData
         log(" > Downloading of #{dst} completed with #{size} bytes")
       end
 
-      def download_index
-        target = URI.parse(config['sonar_base_url'] + '/json')
+      def download_index(dset)
+        target = URI.parse(config['sonar_base_url'] + dset)
         tries  = 0
         begin
 
@@ -84,7 +84,7 @@ module InetData
           req = Net::HTTP::Get.new(target.request_uri)
           res = http.request(req)
 
-          unless (res and res.code.to_i == 200 and res['Content-Type'].index('application/json'))
+          unless (res and res.code.to_i == 200 and res.body.to_s.index('SHA1-Fingerprint'))
             if res
               raise RuntimeError.new("Unexpected reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
             else
@@ -92,7 +92,15 @@ module InetData
             end
           end
 
-          return JSON.parse(res.body)
+          links = []
+          res.body.scan(/href=\"(#{dset}\d+\-\d+\-\d+\-[^\"]+)\"/).each do |link|
+            link = link.first
+            if link =~ /\.json.gz/
+              links << ( config['sonar_base_url'] + link )
+            end
+          end
+
+          return links
 
         rescue ::Interrupt
           raise $!
@@ -107,41 +115,24 @@ module InetData
         end
       end
 
+      def download_fdns_index
+        download_index('/sonar.fdns_v2/')
+      end
+
+      def download_rdns_index
+        download_index('/sonar.rdns_v2/')
+      end
+
       def download
-        meta = download_index
         dir  = storage_path
         FileUtils.mkdir_p(dir)
+
+        fdns_links = download_fdns_index
+        rdns_links = download_rdns_index
+
         queue = []
-        if meta['studies']
-
-          fdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.fdns_v2' }
-          if fdns && fdns.last && fdns.last['files'] && fdns.last['files'].last && fdns.last['files'].last['name']
-            queue << fdns.last['files'].last['name']
-          end
-
-          rdns = meta['studies'].select{|x| x['uniqid'] == 'sonar.rdns_v2' }
-          if rdns && rdns.last && rdns.last['files'] && rdns.last['files'].last && rdns.last['files'].last['name']
-            queue << rdns.last['files'].last['name']
-          end
-
-          ssl = meta['studies'].select{|x| x['uniqid'] == 'sonar.ssl' }
-          if ssl && ssl.last && ssl.last['files']
-            names = ssl.last['files'].select{|x| x['name'].to_s =~ /_names.gz$/}
-            if names && names.last && names.last['name']
-              queue << names.last['name']
-            end
-          end
-
-          sslm = meta['studies'].select{|x| x['uniqid'] == 'sonar.moressl' }
-          if sslm && ssl.last && sslm.last['files']
-            names = sslm.last['files'].select{|x| x['name'].to_s =~ /_names.gz$/}
-            last_date = names.map{|x| x['name'].split("/").last.split("_").first.to_i }.sort.last.to_s
-            names.select{|x| x['name'].index("/#{last_date}_")}.each do |f|
-              queue << f['name']
-            end
-          end
-
-        end
+        queue += rdns_links
+        queue += fdns_links
 
         queue.each do |url|
           dst = File.join(dir, url.split("/").last)
