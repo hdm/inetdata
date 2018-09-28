@@ -78,6 +78,10 @@ logger.log("Normalize initiated with sources: #{sources.map{|s| s.name}.join(", 
 sources.each do |s|
   begin
     s.normalize
+  rescue ::InetData::Source::Base::NotImplemented
+    # logger.log("Warning: Source #{s.name} does not implement normalize()")
+  rescue ::Interrupt
+    logger.log("Error: Source #{s.name} was interrupted: #{$!.class} #{$!} #{$!.backtrace}")
   rescue ::Exception
     logger.log("Error: Source #{s.name} threw an exception: #{$!.class} #{$!} #{$!.backtrace}")
   end

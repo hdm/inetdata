@@ -2,6 +2,9 @@ module InetData
   module Source
     class Base
 
+      class NotImplemented < ::RuntimeError
+      end
+
       @@have_inetdata_parsers = nil
 
       VALID_HOSTNAME = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$/
@@ -57,11 +60,11 @@ module InetData
       end
 
       def download
-        raise RuntimeError.new, "Download not implemented for source #{self.name}"
+        raise NotImplemented
       end
 
       def normalize
-        raise RuntimeError.new, "Normalize not implemented for source #{self.name}"
+        raise NotImplemented
       end
 
       def validate_domain(dname)
