@@ -118,10 +118,16 @@ module InetData
         ct_logs = config['ct_logs']
 
         ct_threads = []
-        ct_logs.each_pair do |log_name, log_base|
+        ct_logs.each do |log_base|
+          # Trim the trailing slash from log_base
+          log_base.gsub!(/\/+$/, '')
+
+          # Determine the log name from the url
+          log_name = log_base.gsub("/", "_")
+
           ct_threads << Thread.new(log_name, log_base) do |lname,lbase|
             begin
-              ct_sync(lname, lbase)
+              ct_sync(lname, "https://" + lbase)
             rescue ::Exception => e
               log("#{lname} failed to sync: #{e} #{e.backtrace}")
             end
