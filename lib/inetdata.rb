@@ -13,7 +13,7 @@ require 'inetdata/logger'
 require 'inetdata/source'
 
 module InetData
-  VERSION = "1.1.1"
+  VERSION = "1.2.1"
 end
 
 

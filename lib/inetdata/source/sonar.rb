@@ -93,7 +93,7 @@ module InetData
           end
 
           links = []
-          res.body.scan(/href=\"(#{dset}\d+\-\d+\-\d+\-[^\"]+)\"/).each do |link|
+          res.body.scan(/href=\"#{dset}(\d+\-\d+\-\d+\-\d+\-[^\"]+)\"/).each do |link|
             link = link.first
             if link =~ /\.json.gz/
               links << ( config['sonar_base_url'] + link )
