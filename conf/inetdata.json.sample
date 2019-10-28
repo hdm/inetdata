@@ -76,7 +76,7 @@
   "caida_prefix2as_ipv4_base_url": "http://data.caida.org/datasets/routing/routeviews-prefix2as",
   "caida_prefix2as_ipv6_base_url": "http://data.caida.org/datasets/routing/routeviews6-prefix2as",
 
-  "gov_domains_url": "https://raw.githubusercontent.com/GSA/data/gh-pages/dotgov-domains/current-full.csv",
+  "gov_domains_url": "https://raw.githubusercontent.com/GSA/data/master/dotgov-domains/current-full.csv",
 
   "govuk_domains_base_url": "https://www.gov.uk/government/publications/list-of-gov-uk-domain-names",
 
