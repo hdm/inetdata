@@ -9,6 +9,8 @@
   "DISABLED_max_cores" : "4",
 
   "sonar_base_url": "https://opendata.rapid7.com",
+  "sonar_api_base_url": "https://us.api.insight.rapid7.com/opendata/studies",
+  "sonar_api_key": "",
 
   "censys_base_url": "https://www.censys.io/api/v1",
   "censys_api_id": "",
