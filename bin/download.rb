@@ -12,7 +12,7 @@ OptionParser.new do |opts|
   opts.on("-l", "--list-sources", "List available sources") do |opt|
     options[:list_sources] = true
   end
-  opts.on("-s", "--sources [sources]", "Comma-separated list of sources to download") do |opt|
+  opts.on("-s", "--sources [sources]", "Comma-separated list of sources to download; e.g. \"sonar, gov\"") do |opt|
     options[:selected_sources] = opt.split(/,\s+/).uniq.map{|x| x.downcase}
   end
 end.parse!

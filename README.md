@@ -10,7 +10,8 @@ Download and normalize internet data from various sources. This package is norma
 ### Ruby
 
 #### Ubuntu 16.04 LTS
- * sudo apt-get install ruby
+ * sudo apt-get install ruby ruby-dev
+ * sudo gem install typhoeus
 
 #### Other Distributions
   * gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
@@ -93,9 +94,17 @@ Normalize jobs can be run manually through ``bin/normalize.sh``. To select which
 
 Project Sonar is a community project sponsored by Rapid7. The latest data can be found at [https://scans.io/](https://scans.io/). More information about Project Sonar can be found on the offical [website](https://sonar.labs.rapid7.com/).
 
-The download script pulls down the sonar.fdns and sonar.rdns datasets, which are updated weekly. In addition, this project pulls down the sonar.ssl and sonar.moressl "names" files (but not the rest of the certificate data). The normalization process converts the sonar.fdns and sonar.rdns files into a set of
-CSVs and MTBLs. These include both a forward and reverse lookup. These normalized files can be queried using standard unix utilities or MTBL front-ends such as mtbl_dump, rmtbl_dump, and mq.
+The download script pulls down the sonar.fdns and sonar.rdns datasets, which are updated monthly. In addition, this project pulls down the sonar.ssl and sonar.moressl "names" files (but not the rest of the certificate data). The normalization process converts the sonar.fdns and sonar.rdns files into a set of CSVs and MTBLs. These include both a forward and reverse lookup. These normalized files can be queried using standard unix utilities or MTBL front-ends such as mtbl_dump, rmtbl_dump, and mq.
 
+Users with [free API access](https://opendata.rapid7.com/apihelp/) can retrieve more frequently updated datasets. Add your API key to the `sonar_api_key` entry in `conf/inetdata.json`.
+
+```json
+{
+  "sonar_base_url": "https://opendata.rapid7.com",
+  "sonar_api_base_url": "https://us.api.insight.rapid7.com/opendata/studies",
+  "sonar_api_key": "<API Key>",
+}
+```
 
 ### Censys
 

@@ -1,102 +1,109 @@
+require 'typhoeus'
+
 module InetData
   module Source
     class Sonar < Base
 
-      def download_file(src, dst,redirect_count=0)
-        tmp    = dst + ".tmp"
-        target = URI.parse(src)
-        size   = 0
-        ims    = false
-        http   = Net::HTTP.new(target.host, target.port)
+      def download_files(queue)
+        hydra = Typhoeus::Hydra.hydra
+        dir   = storage_path
+        FileUtils.mkdir_p(dir)
 
-        if src.index("https") == 0
-          http.use_ssl = true
+        queue.each do |url|
+          filename = File.join(dir, url.split("/").last.split("?").first)
+          dst = File.open(filename, 'wb')
+          req = Typhoeus::Request.new(url, followlocation: true)
+
+          req.on_headers do |res|
+            raise "Request failed: #{url}" unless res.code == 200
+          end
+
+          req.on_body do |chunk|
+            dst.write(chunk)
+          end
+
+          req.on_complete do |res|
+            dst.close
+            size = File.size(filename)
+            log(" > Downloading of #{filename} completed with #{size} bytes")
+          end
+
+          hydra.queue req
         end
 
-        req = Net::HTTP::Get.new(target.request_uri)
-
-        if File.exists?(dst)
-          req['If-Modified-Since'] = File.stat(dst).mtime.rfc2822
-          ims = true
-        end
-
-        http.request(req) do |res|
-
-          if ims && res.code.to_i == 304
-            log(" > Skipped downloading of #{dst} due to not modified response")
-            return true
-          end
-
-          if ims && res['Content-Length']
-            if res['Content-Length'].to_i == File.size(dst)
-              log(" > Skipped downloading of #{dst} with same size of #{res['Content-Length']} bytes")
-              return true
-            end
-          end
-
-          if [301, 302].include?(res.code.to_i)
-
-            if redirect_count > 3
-              log(" > Skipped downloading of #{dst} due to rediret count being over limit: #{redirect_count}")
-              return true
-            end
-
-            new_src = res['Location'].to_s
-
-            if new_src.length == 0
-              log(" > Skipped downloading of #{dst} due to server redirect with no location")
-              return true
-            end
-
-            log(" > Download of #{src} moved to #{new_src}...")
-            return download_file(new_src, dst, redirect_count + 1)
-          end
-
-          if res.code.to_i != 200
-            log(" > Skipped downloading of #{dst} due to server response of #{res.code} #{res.message} #{res['Location']}")
-            return true
-          end
-
-          outp = File.open(tmp, "wb")
-
-          res.read_body do |chunk|
-            outp.write(chunk)
-            size += chunk.length
-          end
-
-          outp.close
-        end
-
-        File.rename(tmp, dst)
-
-        log(" > Downloading of #{dst} completed with #{size} bytes")
+        hydra.run
       end
 
       def download_index(dset)
-        target = URI.parse(config['sonar_base_url'] + dset)
+        unless config['sonar_api_key'].strip.empty?
+          based_url = config['sonar_api_base_url'] + dset
+          target = URI.parse(based_url)
+        else
+          target = URI.parse(config['sonar_base_url'] + dset)
+        end
+
         tries  = 0
         begin
 
+          #
+          # Acquire a listing of the dataset archives
+          #
           tries += 1
           http   = Net::HTTP.new(target.host, target.port)
           http.use_ssl = true
 
           req = Net::HTTP::Get.new(target.request_uri)
+          req['X-Api-Key'] = config['sonar_api_key'] unless config['sonar_api_key'].strip.empty?
           res = http.request(req)
 
-          unless (res and res.code.to_i == 200 and res.body.to_s.index('SHA1-Fingerprint'))
-            if res
-              raise RuntimeError.new("Unexpected reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
+          links = []
+          if !config['sonar_api_key'].strip.empty?
+            unless (res and res.code.to_i == 200 and res.body)
+              raise RuntimeError.new("Unexpected 'studies' API reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
+            end
+
+            #
+            # Find the newest archives
+            #
+            archives = {}
+            if dset.include? 'rdns'
+              archives['rdns'] = JSON.parse(res.body)['sonarfile_set'].shift
             else
+              JSON.parse(res.body)['sonarfile_set'].each do |archive|
+                next unless archive.include? '_'
+                record = (archive.split /_|\.json\.gz/).last
+                archives[record] = archive unless archives[record]
+              end
+            end
+
+            #
+            # Generate a download URL for a file (https://opendata.rapid7.com/apihelp/)
+            #
+            archives.values.each do |filename|
+              target  = URI.parse("#{based_url}#{filename}/download/")
+              http    = Net::HTTP.new(target.host, target.port)
+              http.use_ssl = true
+
+              req = Net::HTTP::Get.new(target.request_uri)
+              req['X-Api-Key'] = config['sonar_api_key']
+              res = http.request(req)
+
+              unless (res and res.code.to_i == 200 and res.body)
+                raise RuntimeError.new("Unexpected 'download' API reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
+              end
+
+              links << ( JSON.parse(res.body)['url'] )
+            end
+          else
+            unless (res and res.code.to_i == 200 and res.body.to_s.index('SHA1-Fingerprint'))
               raise RuntimeError.new("Unexpected reply: #{res.code} - #{res['Content-Type']} - #{res.body.inspect}")
             end
-          end
 
-          links = []
-          res.body.scan(/href=\"(#{dset}\d+\-\d+\-\d+\-\d+\-[^\"]+)\"/).each do |link|
-            link = link.first
-            if link =~ /\.json.gz/
-              links << ( config['sonar_base_url'] + link )
+            res.body.scan(/href=\"(#{dset}\d+\-\d+\-\d+\-\d+\-[^\"]+)\"/).each do |link|
+              link = link.first
+              if link =~ /\.json.gz/
+                links << ( config['sonar_base_url'] + link )
+              end
             end
           end
 
@@ -124,9 +131,6 @@ module InetData
       end
 
       def download
-        dir  = storage_path
-        FileUtils.mkdir_p(dir)
-
         fdns_links = download_fdns_index
         rdns_links = download_rdns_index
 
@@ -134,10 +138,7 @@ module InetData
         queue += rdns_links
         queue += fdns_links
 
-        queue.each do |url|
-          dst = File.join(dir, url.split("/").last)
-          download_file(url, dst)
-        end
+        download_files(queue)
       end
 
       def normalize
